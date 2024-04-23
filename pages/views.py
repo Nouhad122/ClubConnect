@@ -4,7 +4,9 @@ from django.contrib import messages
 from .models import createclub,Post,EventActivity
 from django.contrib.auth.decorators import login_required
 from pages.authentication_backends import EmailAuthBackend
-from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.contrib.auth import authenticate, login
+
 
 
 # registration:
@@ -13,10 +15,50 @@ def userType(request):
     return render(request, 'pages/registration-form/userType.html')
 
 def adminLogin(request):
-    return render(request, 'pages/registration-form/admin-login.html')
+    user = None  
+    if request.method == 'POST':
+            email = request.POST['email']
+            password = request.POST['password']
+
+                # Check if the provided email and password match the admin credentials
+            if email == 'sks.admin@st.uskudar.edu.tr' and password == 'sksadmin':
+                # If credentials match, authenticate the user
+                # You may also want to hash the password and compare it with the hashed password stored in the database
+                admin_user = User.objects.get(username='SKS')  # Assuming 'admin' is the username of the admin account
+                user = auth.authenticate(username=admin_user.username, password=password)
+
+            if user is not None:
+                auth.login(request, user)
+                return redirect('homePage')
+            else:
+                messages.info(request, 'Credentials Invalid')
+                return redirect('adminLogin')
+    else:
+      return render(request, 'pages/registration-form/admin-login.html')
 
 def managerLogin(request):
-    return render(request, 'pages/registration-form/manager-login.html')
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Authenticate the user
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            # Check if the authenticated user is a superuser
+            if user.is_superuser:
+                # If the user is a superuser, redirect to homePage
+                return redirect('homePage')
+            else:
+                # If the user is not a superuser, show error message and redirect to managerLogin
+                messages.error(request, 'You are not authorized to access this page.')
+                return redirect('managerLogin')
+        else:
+            # If authentication fails, show error message and redirect to managerLogin
+            messages.error(request, 'Invalid email or password.')
+            return redirect('managerLogin')
+    else:
+          return render(request, 'pages/registration-form/manager-login.html')
 
 
 def studentSignup(request):
@@ -89,9 +131,7 @@ def studentLogin(request):
 def studentLogout(request):
     auth.logout(request)
     return redirect('usertype')
-def studentLogout(request):
-    auth.logout(request)
-    return redirect('usertype')
+
 
 # All Users Interface:
 #@login_required(login_url='usertype') 
@@ -127,7 +167,8 @@ def get_or_create_user_by_username(username):
         pass
     return user 
 
-def createNewClub(request):
+
+def createNewClub(request):             
         if request.method == 'POST':
                 # Assuming you have a form that submits club data
                 # Extract club data from the form
@@ -145,13 +186,6 @@ def createNewClub(request):
                 profileimg = request.FILES.get('profile')
                 profileimg2 = request.FILES.get('background')
 
-               # try:
-              #      manager = User.objects.get(username=clubmanager)
-              #  except User.DoesNotExist:
-                        # Handle the case where the user does not exist
-                        # You might want to redirect the user to an error page or display a message
-               #     return HttpResponse("Error: The specified club manager does not exist.")
-
                 manager = get_or_create_user_by_username(clubmanager)
                 vice_manager = get_or_create_user_by_username(clubvicemanager)
 
@@ -159,8 +193,8 @@ def createNewClub(request):
                 if not clubname or not headline or not clubmanager or not email:
                     messages.error(request, 'Please fill in all required fields.')
                     return redirect('createNewClub')
-                
-                
+               
+                   
                 # Create club profile
                 new_club = createclub.objects.create(
                     clubname=clubname,
