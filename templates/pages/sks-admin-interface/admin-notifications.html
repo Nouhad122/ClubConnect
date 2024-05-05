@@ -4,6 +4,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
+    .notif-container{
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        background-color: pink !important;
+        min-height: 100vh;
+        }
     input[type="checkbox"]{
     width: 20px;
     height: 20px;
@@ -27,7 +34,7 @@
     flex-direction: column;
     align-items: center;
   }
-  .activity-request, .post-request, .edit-request{
+  .notif-request{
     display: flex;
     flex-direction: column;
     align-items: flex-start !important;
@@ -118,8 +125,6 @@
   
       </form>
 
-
-        </div>
     <form method="post" action="">
         {% csrf_token %}
     <div class="posts-notif-container">
@@ -172,7 +177,6 @@
         <button class="accept-btn" name="update_posts"  type="submit">Update approval</button>
         <button class="accept-btn" name="update_reject_post"  type="submit">Update reject</button>       
 
-        </div>
         <form method="post" action="">
             {% csrf_token %}
             <div class="edits-notif-container">
@@ -229,7 +233,6 @@
             <button class="accept-btn" name="update_edit"  type="submit">Update approval</button>
             <button class="accept-btn" name="update_reject_edit"  type="submit">Update reject</button>
             <button type="submit" class="accept-btn">Submit</button> 
-        </div>
     
     <div class="event-interface-container" id="activity-interface-container">
         <!-- HERE THE ACTIVITY INTERFACE WILL BE DISPLAYED FROM JS  -->
@@ -242,7 +245,7 @@
     <div class="event-interface-container" id="edited-event-interface-container">
         <!-- HERE THE Old and Edited Event INTERFACE WILL BE DISPLAYED FROM JS  -->
     </div>
-    
+</div>
 </div>
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
@@ -267,12 +270,14 @@ function handleRequestContainer(){
       approveCheckbox.addEventListener('change', function() {
         if (this.checked) {
             rejectCheckbox.checked = false;
+            requestContainer[i].style.height = "70px";
         }
     });
     
     rejectCheckbox.addEventListener('change', function() {
         if (this.checked) {
             approveCheckbox.checked = false;
+            requestContainer[i].style.height = "170px";
         }
     });
     }

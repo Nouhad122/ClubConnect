@@ -661,7 +661,7 @@ padding: 10px 0;
   padding-left: 10px;
   margin-bottom: 20px;
 }
-.activity-request, .post-request, .edit-request{
+.notif-request{
   display: flex;
   align-items: center;
   gap: 10px;
