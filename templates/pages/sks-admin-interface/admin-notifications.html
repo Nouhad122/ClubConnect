@@ -8,8 +8,7 @@
         display: flex;
         gap: 20px;
         flex-wrap: wrap;
-        background-color: pink !important;
-        min-height: 100vh;
+        min-height: 85vh;
         }
     input[type="checkbox"]{
     width: 20px;
@@ -20,10 +19,8 @@
     overflow-y: auto;
     scrollbar-width: none;
     height: 92%;
-    background-color: red;
   }
   .req-text-checkboxes{
-    background-color: pink;
     display: flex;
     gap: 5px;
     align-items: center;
@@ -41,13 +38,43 @@
     gap: 10px;
     border-bottom: solid 1px rgba(128, 128, 128, 0.429);
     padding: 10px;
-    background-color: blue;
     height: 70px;
     overflow-y: hidden;
   }
   .form-group .form-control{
     width: 29.8vw;
     border-radius: 0;
+  }
+  .accept-reject-btn{
+    padding: 5px 10px;
+    margin: 5px;
+    color: white;
+    border: solid 1px transparent;
+    transition: .3s ease;
+  }
+  .update-approval{
+    background-color: rgb(57, 57, 159);
+  }
+  .update-approval:hover{
+    background-color: transparent;
+    border: solid 1px rgb(57, 57, 159);
+    color: rgb(57, 57, 159);
+  }
+  .update-reject{
+    background-color: rgb(171, 15, 15);
+  }
+  .update-reject:hover{
+    background-color: transparent;
+    border: solid 1px rgb(171, 15, 15);
+    color: rgb(171, 15, 15);
+  }
+  .submit-purpose-btn{
+    background-color: green;
+  }
+  .submit-purpose-btn:hover{
+    background-color: transparent;
+    border: solid 1px green;
+    color: green;
   }
   
 </style>
@@ -119,10 +146,10 @@
             </div>
             {% endfor %}
         </div>
-        <button class="accept-btn" name="update_activities"  type="submit">Update approval</button>
-        <button class="accept-btn" name="update_reject"  type="submit">Update reject</button>
-        <button type="submit" class="accept-btn">Submit</button>        
-  
+        <button class="accept-reject-btn update-approval" name="update_activities"  type="submit">Update approval</button>
+        <button class="accept-reject-btn update-reject" name="update_reject"  type="submit">Update reject</button>
+        <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>        
+  </div>
       </form>
 
     <form method="post" action="">
@@ -172,10 +199,11 @@
     {% endfor %}
         
         </div> 
-    </form>
-        <button type="submit" class="accept-btn">Submit</button>
-        <button class="accept-btn" name="update_posts"  type="submit">Update approval</button>
-        <button class="accept-btn" name="update_reject_post"  type="submit">Update reject</button>       
+        <button class="accept-reject-btn update-approval" name="update_posts"  type="submit">Update approval</button>
+        <button class="accept-reject-btn update-reject" name="update_reject_post"  type="submit">Update reject</button>
+        <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>
+    </div>
+    </form>       
 
         <form method="post" action="">
             {% csrf_token %}
@@ -229,11 +257,13 @@
                 {% endfor %}
 
             </div>
+            <button class="accept-reject-btn update-approval" name="update_edit"  type="submit">Update approval</button>
+            <button class="accept-reject-btn update-reject" name="update_reject_edit"  type="submit">Update reject</button>
+            <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>
+        </div> 
             </form>
-            <button class="accept-btn" name="update_edit"  type="submit">Update approval</button>
-            <button class="accept-btn" name="update_reject_edit"  type="submit">Update reject</button>
-            <button type="submit" class="accept-btn">Submit</button> 
-    
+            
+</div>
     <div class="event-interface-container" id="activity-interface-container">
         <!-- HERE THE ACTIVITY INTERFACE WILL BE DISPLAYED FROM JS  -->
     </div>
@@ -245,7 +275,6 @@
     <div class="event-interface-container" id="edited-event-interface-container">
         <!-- HERE THE Old and Edited Event INTERFACE WILL BE DISPLAYED FROM JS  -->
     </div>
-</div>
 </div>
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
@@ -279,12 +308,13 @@ function handleRequestContainer(){
             approveCheckbox.checked = false;
             requestContainer[i].style.height = "170px";
         }
+        else{
+            requestContainer[i].style.height = "70px";
+        }
     });
     }
 }
 handleRequestContainer();
-
-
 
 function showRequestContent(request,interfaceContainer){
   for(let i = 0; i < request.length; i++){
@@ -465,20 +495,6 @@ function closeEventInterface(interface){
   document.body.style.overflow = 'auto';
 }
 
-
-let rejectionContainer = document.querySelector('.admin-rejection-purpose');
-let rejectionBlur = document.getElementById('admin-notification-blur');
-function showRejectionPurpose(){
-  document.body.style.overflow = 'hidden';
-  rejectionContainer.style.display = 'block';
-  rejectionBlur.style.display = 'block';
-}
-
-function hideRejectionPurpose(){
-    document.body.style.overflow = 'auto';
-    rejectionContainer.style.display = 'none';
-    rejectionBlur.style.display = 'none';
-}
 }
     </script>
     
