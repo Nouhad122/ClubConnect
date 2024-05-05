@@ -98,11 +98,21 @@
            <div class="club-achievments">
             <h4>Club's Achievments <i class="fa-solid fa-medal"></i></h4>
             <ul>
+                {% if club.club_achievement1 %}
                 <li id="club-achievment1-data">{{club.club_achievement1}}</li>
+                {% endif %}
+                {% if club.club_achievement2 %}
                 <li id="club-achievment2-data">{{club.club_achievement2}}</li>
+                {% endif %}
+                {% if club.club_achievement3 %}
                 <li id="club-achievment3-data">{{club.club_achievement3}}</li>
+                {% endif %}
+                {% if club.club_achievement4 %}
                 <li id="club-achievment4-data">{{club.club_achievement4}}</li>
+                {% endif %}
+                {% if club.club_achievement5 %}
                 <li id="club-achievment5-data">{{club.club_achievement5}}</li>
+                {% endif %}
             </ul>
             </div>
             <div class="club-management">
