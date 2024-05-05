@@ -7,7 +7,7 @@
     --section-color: #eff7fa;
     --blue-color: rgb(101, 108, 239);
   }
-  
+ 
 body{
     font-family: "Roboto", sans-serif;
 }
@@ -217,7 +217,7 @@ body{
 }
 .event-posts-slider{
   width: 700px;
-  height: 600px;
+  height: 640px;
   display: flex;
   overflow: hidden;
   border: solid 1px var(--dark-color);
@@ -246,6 +246,7 @@ body{
   top: 50%;
   transform: translateY(-50%);
 }
+
 .event-posts-container .fa-greater-than{
   right: 50px;
   top: 50%;
@@ -263,12 +264,94 @@ body{
   overflow: auto;
   display: none;
 }
-
+.edit-post-btn,.delete-post-btn{
+  padding: 5px 30px;
+  font-size: 1rem;
+  border: none;
+  margin-right: 10px;
+  border: solid 1px  transparent;
+  transition: .3s ease;
+}
+.edit-post-btn{
+  background-color: rgb(57, 57, 159);
+  color: var(--ligh-color);
+}
+.edit-post-btn:hover{
+  background-color: transparent;
+  border: solid 1px rgb(57, 57, 159);
+  color:  rgb(57, 57, 159);
+}
+.delete-post-btn{
+  background-color: rgb(171, 15, 15);
+  color: var(--ligh-color);
+}
+.delete-post-btn:hover{
+  background-color: transparent;
+  border: solid 1px rgb(171, 15, 15);
+  color:  rgb(171, 15, 15);
+}
+.edit-post-form-container{
+  background: rgba(0, 0, 0, 0.63);
+  width: 100%;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  display: none;
+}
+.edit-post-form-container .edit-post-form{
+  background-color: white;
+  width: 60vw;
+  height: 550px;
+  overflow-y: auto;
+  text-align: center;
+  padding: 20px;
+  margin-top: 60px;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.edit-post-form .edit-post-input-wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+.image-upload-container{
+  border: solid 1px black;
+  font-size: 1.5rem;
+}
+#e-p-file-upload{
+  display: none;
+}
+.edit-post-form .event-description-input{
+  resize: none;
+  width: 50vw;
+  min-height: 30vh;
+  padding: 20px;
+  outline: none;
+}
+.edit-post-form .submit-edit-post-btn{
+  background-color: var(--red-color);
+  border: solid 1px transparent;
+  padding: 7px 20px;
+  color: var(--ligh-color);
+  margin-top: 20px;
+  transition: .3s ease;
+}
+.edit-post-form .submit-edit-post-btn:hover{
+  border: solid 1px var(--red-color);
+  color: var(--red-color);
+  background-color: transparent;
+}
 .edit-club-infos{
     justify-content: center !important;
     margin-top: 60px !important;
 }
-#x-mark{
+#x-mark, #post-x-mark{
     position: absolute;
     right: 8px;
     top: 10px;
@@ -293,7 +376,7 @@ body{
 .bigger-post-container{
   background-color: white;
   width: 100%;
-  height: 630px;
+  height: 700px;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -942,6 +1025,12 @@ padding: 10px 0;
   }
   .edit-clubProfile-form{
     width: 90vw;
+}
+  .edit-post-form-container .edit-post-form{
+    width: 90vw;
+}
+  .edit-post-form .event-description-input{
+    width: 90%;
 }
   
 }

@@ -161,8 +161,8 @@ form .input-wrapper select{
 }
 .blur{
     width: 100%;
-    min-height: 100vh;
-    background-color: rgba(0, 0, 0, 0.829);
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.594);
     position: fixed;
     top: 0;
     left: 0;
@@ -291,7 +291,6 @@ form .input-wrapper select{
     .description-container textarea{
         width: 75vw;
     }
-    
 }
 @media screen and (max-width: 536px){
     form .input-wrapper input{
