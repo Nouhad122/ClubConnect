@@ -100,13 +100,12 @@
 
     <div class="all-features-container">
     <div class="notif-container">
-      <form method="post" action="">
+      <form method="post" action="{% url 'approve_or_reject_event' %}">
             {% csrf_token %}
         <div class="activities-notif-container">
             <h4>Event Activity Requests</h4>
             <div class="scroll-container">
             {% for act in activities %}
-            {% if not act.approved %}
             <div class="activity-request notif-request" data-date="{{act.date}}" data-time = "{{act.time}}" data-category="{{act.categories}}"
              data-phone = "{{act.phonenumber}}" data-location="{{act.location}}" data-manager="{{act.clubmanager}}"
              data-vicemanager = "{{act.clubvicemanager}}"
@@ -115,42 +114,57 @@
              <div class="req-text-checkboxes">
                 <img src="{{act.clubname.profileimg.url}}" alt="club logo">
                 <div class="req-text"><strong class="club-name">{{act.clubname}}</strong> sent an event activity request <span class="view-interface-btn">view</span></div>
+
                 <div class="decision-buttons">
 
-                  <div class="check-container">
-                    <label for="reason">Approve</label>
-                    <input class="accept-check" type="checkbox" value={{act.id}
-                    name="boxes">
-                  </div>
-                  <div class="check-container">
-                    <label for="reason">Reject</label>
-                    <input class="reject-check" type="checkbox" value={{act.id}}
-                    name="boxes2">
-                 </div>
+                    {% if act.approved %}
+                    <div class="check-container">
+                        <label for="approve_{{ act.id }}">Approve</label>
+                        <input class="accept-check" type="checkbox" checked id="approve_{{ act.id }}" value="{{ act.id }}" name="approve">
+                    </div>
+                    {% else %}
+                    <div class="check-container">
+                        <label for="approve_{{ act.id }}">Approve</label>
+                        <input class="accept-check" type="checkbox"  id="approve_{{ act.id }}" value="{{ act.id }}" name="approve">
+                    </div>
+                    {% endif %}
+
+                    {% if act.rejected %}
+                    <div class="check-container">
+                        <label for="reject_{{ act.id }}">Reject</label>
+                        <input class="reject-check" type="checkbox" checked id="reject_{{ act.id }}" value="{{ act.id }}" name="reject">
+                    </div>
+                    {% else %}
+                    <div class="check-container">
+                        <label for="reject_{{ act.id }}">Reject</label>
+                        <input class="reject-check" type="checkbox"  id="reject_{{ act.id }}" value="{{ act.id }}" name="reject">
+                    </div>
+                    {% endif %}
+
+                    <div >
+                        <label for="reason">Rejection Reason:</label>
+                        <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                    </div>
+
+
                 </div>
             </div>
 
-                <div class="form-group">
-                    <label for="reason">Rejection Reason:</label>
-                     <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
-                   </div>
+
             </div>
-            {% endif %}
+
             {% endfor %}
+        </div> 
+        <input type="submit" class="accept-reject-btn submit-purpose-btn" value="Submit">
         </div>
-        <button class="accept-reject-btn update-approval" name="update_activities"  type="submit">Update approval</button>
-        <button class="accept-reject-btn update-reject" name="update_reject"  type="submit">Update reject</button>
-        <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>        
-  </div>
       </form>
 
-    <form method="post" action="">
+    <form method="post" action="{% url 'approve_or_reject_post' %}">
         {% csrf_token %}
     <div class="posts-notif-container">
         <h4>Event Post Requests</h4>
         <div class="scroll-container">
     {% for post in posts %}
-    {% if not post.approved %}
         <div class="post-request notif-request" data-title = "{{post.eventtitle}}"
             data-image = "{{post.image.url}}"
             data-description = "{{post.postdescription}}">
@@ -158,43 +172,104 @@
                 <img src="{{post.clubname.profileimg.url}}" alt="club logo">
                 <div class="req-text"><strong class="club-name">{{post.clubname}}</strong> sent an event post request <span class="view-interface-btn">view</span></div>
                 <div class="decision-buttons">
-                    <div class="check-container">
-                           <label for="reason">Approve</label>
-                           <input class="accept-check" type="checkbox" value={{post.id}}
-                           name="boxes">
-                   </div>
-                       
-                   <div class="check-container">
-                           <label for="reason">Reject</label>
-                           <input class="reject-check" type="checkbox" value={{post.id}}
-                           name="boxes2">
-  
-                   </div>
+                        {% if post.approved %}
+                        <div class="check-container">
+                            <label for="approve_{{ post.id }}">Approve</label>
+                            <input class="accept-check" type="checkbox" checked id="approve_{{ post.id }}" value="{{ post.id }}" name="approve">
+                        </div>
+                        {% else %}
+                        <div class="check-container">
+                            <label for="approve_{{ post.id }}">Approve</label>
+                            <input class="accept-check" type="checkbox"  id="approve_{{ post.id }}" value="{{ post.id }}" name="approve">
+                        </div>
+                        {% endif %}
+
+                        {% if post.rejected %}
+                        <div class="check-container">
+                            <label for="reject_{{ post.id }}">Reject</label>
+                            <input class="reject-check" type="checkbox" checked id="reject_{{ post.id }}" value="{{ post.id }}" name="reject">
+                        </div>
+                        {% else %}
+                        <div class="check-container">
+                            <label for="reject_{{ Post.id }}">Reject</label>
+                            <input class="reject-check" type="checkbox"  id="reject_{{ post.id }}" value="{{ post.id }}" name="reject">
+                        </div>
+                        {% endif %}
+
+                        <div >
+                            <label for="reason">Rejection Reason:</label>
+                            <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                        </div>
+                
                  </div>
                  
-            </div>
-            
+            </div>     
         
-        <div class="form-group">
-            <label for="reason">Rejection Reason:</label>
-                <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
-            </div>
     </div>
-    {% endif %}
     {% endfor %}
         
         </div> 
-        <button class="accept-reject-btn update-approval" name="update_posts"  type="submit">Update approval</button>
-        <button class="accept-reject-btn update-reject" name="update_reject_post"  type="submit">Update reject</button>
-        <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>
-    </div>
+        <input type="submit" class="accept-reject-btn submit-purpose-btn" value="Submit">
+        </div>
     </form>       
 
-        <form method="post" action="">
+        <form method="post" action="{% url 'approve_or_reject_edited_post' %}">
             {% csrf_token %}
             <div class="edits-notif-container">
                 <h4>Edit Event Requests</h4>
+
                 <div class="scroll-container">
+
+                        {% for post in post %}
+                        {% if post.edit_post %}
+                        <div class="edit-request" data-type="post" data-oldtitle = "{{ post.eventtitle }}"
+                            data-oldimage = "{{ post.image.url }}"
+                        data-olddescription = "{{ post.description }}"
+
+                        data-editedtitle = "{{ post.edit_post.eventtitle }}"
+                        data-editedimage = "{{ post.edit_post.image.url }}"
+                    data-editeddescription = "{{ post.edit_post.description }}">
+                    <img src="{{ post.clubname.profileimg.url }}" alt="club logo">
+                    <div class="req-text"><strong class="club-name">{{ post.clubname }}</strong> sent an edit post event request <span class="view-interface-btn">view</span></div>
+                    
+                    <div class="decision-buttons">
+                            {% if post.edit_post.approved %}
+                            <div class="check-container">
+                                <label for="approve_{{ post.edit_post.id }}">Approve</label>
+                                <input class="accept-check" type="checkbox" checked id="approve_{{ post.edit_post.id }}" value="{{ post.edit_post.id }}" name="approve">
+                            </div>
+                            {% else %}
+                            <div class="check-container">
+                                <label for="approve_{{ post.edit_post.id }}">Approve</label>
+                                <input class="accept-check" type="checkbox"  id="approve_{{ post.edit_post.id }}" value="{{ post.edit_post.id }}" name="approve">
+                            </div>
+                            {% endif %}
+
+                            {% if post.edit_post.rejected %}
+                            <div class="check-container">
+                                <label for="reject_{{ post.edit_post.id }}">Reject</label>
+                                <input class="reject-check" type="checkbox" checked id="reject_{{ post.edit_post.id }}" value="{{ post.edit_post.id }}" name="reject">
+                            </div>
+                            {% else %}
+                            <div class="check-container">
+                                <label for="reject_{{ post.edit_post.id }}">Reject</label>
+                                <input class="reject-check" type="checkbox"  id="reject_{{ post.edit_post.id }}" value="{{ post.edit_post.id }}" name="reject">
+                            </div>
+                            {% endif %}
+
+                            <div >
+                                <label for="reason">Rejection Reason:</label>
+                                <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                            </div>
+
+
+                    </div>
+            </div>
+
+
+            {% endif %}
+            {% endfor %}
+
                     {% for event in events %}
                     {% if event.edit_event %}
                 <div class="edit-request notif-request" data-type = "activity" 
@@ -210,41 +285,47 @@
                     <img src="{{ event.clubname.profileimg.url }}" alt="club logo">
                     <div class="req-text"><strong class="club-name">{{ event.clubname }}</strong> sent an edit activity event request <span class="view-interface-btn">view</span></div>
                     <div class="decision-buttons">
-                      <div class="check-container">
-                        <label for="reason">Approve</label>
-                        {% if event.edit_event.approved %}
-                        <input class="accept-check" type="checkbox" value={{event.edit_event.id}}
-                        name="boxe">
-                        {% else %}
-                        <input class="accept-check" type="checkbox" value={{event.edit_event.id}}
-                        name="boxe">
-                        {% endif %}
-                      </div>
 
-                      <div class="check-container">
-                        <label for="reason">Reject</label>
-                        {% if event.edit_event.rejected %}
-                        <input class="reject-check" type="checkbox" value={{event.edit_event.id}}
-                        name="boxe2">
-                        {% else %}
-                        <input class="reject-check" type="checkbox" value={{event.edit_event.id}}
-                        name="boxe2">
-                        {% endif %}
-                     </div>
+                            {% if event.edit_event.approved %}
+                            <div class="check-container">
+                                <label for="approve_{{ event.edit_event.id }}">Approve</label>
+                                <input class="accept-check" type="checkbox" checked id="approve_{{ event.edit_event.id }}" value="{{ event.edit_event.id }}" name="approve">
+                            </div>
+                            {% else %}
+                            <div class="check-container">
+                                <label for="approve_{{ event.edit_event.id }}">Approve</label>
+                                <input class="accept-check" type="checkbox"  id="approve_{{ event.edit_event.id }}" value="{{ event.edit_event.id }}" name="approve">
+                            </div>
+                            {% endif %}
+    
+                            {% if event.edit_event.rejected %}
+                            <div class="check-container">
+                                <label for="reject_{{ event.edit_event.id }}">Reject</label>
+                                <input class="reject-check" type="checkbox" checked id="reject_{{ event.edit_event.id }}" value="{{ event.edit_event.id }}" name="reject">
+                            </div>
+                            {% else %}
+                            <div class="check-container">
+                                <label for="reject_{{ event.edit_event.id }}">Reject</label>
+                                <input class="reject-check" type="checkbox"  id="reject_{{ event.edit_event.id }}" value="{{ event.edit_event.id }}" name="reject">
+                            </div>
+                            {% endif %}
+    
+                            <div >
+                                <label for="reason">Rejection Reason:</label>
+                                <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                            </div>
+    
+
                     </div>
+
                  </div>
-                    <div class="form-group">
-                        <label for="reason">Rejection Reason:</label>
-                        <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
-                    </div>
+
             </div>
                 {% endif %}
                 {% endfor %}
 
             </div>
-            <button class="accept-reject-btn update-approval" name="update_edit"  type="submit">Update approval</button>
-            <button class="accept-reject-btn update-reject" name="update_reject_edit"  type="submit">Update reject</button>
-            <button type="submit" class="accept-reject-btn submit-purpose-btn">Submit</button>
+            <input type="submit" class="accept-reject-btn submit-purpose-btn" value="Submit">
         </div> 
             </form>
             
