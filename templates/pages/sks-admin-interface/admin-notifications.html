@@ -197,10 +197,10 @@
                     <div class="edit-request notif-request" data-type="post" data-oldtitle = "{{ post.eventtitle }}"
                         data-oldimage = "{{ post.image.url }}"
                     data-olddescription = "{{ post.description }}"
-
                     data-editedtitle = "{{ post.edit_post.eventtitle }}"
                     data-editedimage = "{{ post.edit_post.image.url }}"
                 data-editeddescription = "{{ post.edit_post.description }}">
+                <div class="req-text-checkboxes">
                 <img src="{{ post.clubname.profileimg.url }}" alt="club logo">
                 <div class="req-text"><strong class="club-name">{{ post.clubname }}</strong> sent an edit post event request <span class="view-interface-btn">view</span></div>
                 
@@ -231,6 +231,7 @@
 
 
 
+                    </div>
                     </div>
                     <div class="rejection-container">
                         <label for="reason">Rejection Reason:</label>
@@ -284,13 +285,12 @@
                     </div>
 
                  </div>
-                 <div >
-                    
-                </div>
-                <div class="rejection-container">
-                    <label for="reason">Rejection Reason:</label>
-                <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
-                </div>
+           
+                    <div class="rejection-container">
+                        <label for="reason">Rejection Reason:</label>
+                        <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                    </div>
+
             </div>
                 {% endif %}
                 {% endfor %}
