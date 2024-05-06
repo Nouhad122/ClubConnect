@@ -8,7 +8,6 @@ let clubConfirmMessage = document.querySelector('.confirm-message');
 let clubBlur = document.querySelector('.blur');
 let clubEmail = document.querySelector('.club-email');
 let createClubForm = document.querySelector('.create-club-form');
-    
 const backgroundUpload = document.querySelector('.background-upload');
 const profileUpload = document.querySelector('.profile-upload');
 const backgroundPreview = document.querySelector('.bg-preview');

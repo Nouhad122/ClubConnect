@@ -136,12 +136,12 @@ a{
 }
 
 .logout-menu{
-background-color: var(--dark-color);
-position: absolute;
-right: -25px;
-bottom: -80px;
-padding: 7px 0;
-border-radius: 3px;
+  background-color: var(--dark-color);
+  position: absolute;
+  right: 0px !important;
+  bottom: -50px !important;
+  padding: 7px 0;
+  border-radius: 3px;
 }
 .logout-menu li{
   list-style: none;

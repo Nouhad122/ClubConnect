@@ -2,8 +2,8 @@
   .logout-menu{
     background-color: var(--dark-color);
     position: absolute;
-    right: -25px;
-    bottom: -80px !important;
+    right: 0px !important;
+    bottom: -50px !important;
     padding: 7px 0;
     border-radius: 3px;
   }
@@ -80,7 +80,6 @@
         {% if request.user.is_authenticated and request.user.is_superuser and not request.user.is_staff %}
         <li><a href="#">My Club</a></li>
         {% endif %}
-
         <li><a href="{% url 'logout' %}">Logout</a></li>
        </ul>
       </div>
