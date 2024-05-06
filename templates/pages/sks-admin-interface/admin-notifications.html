@@ -194,7 +194,7 @@
 
                     {% for post in post %}
                     {% if post.edit_post %}
-                    <div class="edit-request" data-type="post" data-oldtitle = "{{ post.eventtitle }}"
+                    <div class="edit-request notif-request" data-type="post" data-oldtitle = "{{ post.eventtitle }}"
                         data-oldimage = "{{ post.image.url }}"
                     data-olddescription = "{{ post.description }}"
 
@@ -281,16 +281,13 @@
                                 <input class="reject-check" type="checkbox"  id="reject_{{ event.edit_event.id }}" value="{{ event.edit_event.id }}" name="reject">
                             </div>
                             {% endif %}
-    
-                            <div >
-                                <label for="reason">Rejection Reason:</label>
-                                <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
-                            </div>
-    
-
                     </div>
 
                  </div>
+                 <div >
+                    <label for="reason">Rejection Reason:</label>
+                    <input type="text" class="form-control" name="reason" id="reason" placeholder="Enter rejection reason">
+                </div>
 
             </div>
                 {% endif %}
