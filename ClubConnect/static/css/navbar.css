@@ -135,17 +135,19 @@ a{
     color: var(--yellow-color);
 }
 
-  .logout-menu{
-    background-color: var(--dark-color);
-    position: absolute;
-    right: -25px;
-    bottom: -60px;
-    padding: 7px 0;
-    border-radius: 3px;
-  }
+.logout-menu{
+  background-color: var(--dark-color);
+  position: absolute;
+  right: -25px;
+  bottom: -80px;
+  padding: 7px 0;
+  border-radius: 3px;
+}
   .logout-menu li{
     list-style: none;
-  
+  }
+  .logout-menu li:last-child{
+    margin-top: 12px !important;
   }
   .logout-menu li a{
     text-decoration: none;

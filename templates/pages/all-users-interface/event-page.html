@@ -62,13 +62,87 @@
         <form class="edit-activity-form" action="" method="post" id="edit-event-activity-form" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="edit-activity-form-place">
-                <!-- The edit activity Form goes here(script.js line 360) -->
+                <i onclick="hideEditActivityForm()" class="fa-solid fa-xmark" id="edit-activity-x-mark"></i>
+                <div class="input-container justify-content-center gap-2">
+                    <div class="input-wrapper">
+                        <label for="e-a-cm-name">Club Manager Name:</label>
+                    <input class="input-field" type="text" name="edit_clubmanager" id="e-a-cm-name" placeholder="e.g Nouhad El Hallab" value="${activityManagerData.textContent}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="e-a-cvm-name">Club Vice Manager Name:</label>
+                    <input class="input-field" type="text" name="edit_clubvicemanager" id="e-a-cvm-name" placeholder="e.g Mohammad Aburahma" value="${activityViceData.textContent}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="e-a-c-name">Club Name:</label>
+                    <input class="input-field" type="text" name="edit_clubname" id="e-a-c-name" placeholder="e.g Paddle Pros" value="${activityClubNameData.textContent}" required>
+                    </div>
+                </div>
+            
+                <div class="input-container justify-content-center gap-2">
+                    <div class="input-wrapper">
+                        <label for="e-a-e-email">Email:</label>
+                    <input class="input-field activity-email-input" type="email" name="edit_email" id="e-a-e-email" placeholder="Email"value="${activityEmailData.textContent}" required>
+                    <strong class="email-error">Invalid Email</strong>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="e-a-e-title">Event Title:</label>
+                    <input class="input-field event-title-input" type="text" name="edit_eventtitle" id="e-a-e-title" placeholder="Event Title" value="${activityTitleData.textContent}" required>
+                    </div>
+                    <div class="input-wrapper set-top">
+                        <label for="e-a-s-categories">Select a category:</label>
+                    <select class="event-category-input" name="edit_categories" id="e-a-s-categories">
+                        <option value="${activityCategoryData.textContent}">${activityCategoryData.textContent}</option>
+                        <option value="sport">Sport</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="technology">Technology</option>
+                        <option value="society">Society</option>
+                        <option value="programming">Programming</option>
+                        <option value="art">Art</option>
+                    </select>
+                    </div>
+                </div>
+                <h6>Event Activity Image:</h6>
+                <div class="image-upload-container">
+                    <label for="e-a-file-upload" class="custom-file-upload">
+                    <i class="fas fa-cloud-upload-alt"></i> Choose File
+                </label>
+                <input class="event-file-upload-input" id="e-a-file-upload" name="edit_event_image" type="file" onchange="displayFiles(this)" required multiple />
+                </div>
+                <div class="event-file-list" id="e-a-file-list"></div>
+                <strong class="image-error">You should set an image for your event</strong>
+            
+                <div class="input-container justify-content-center gap-2 mt-5">
+                    <div class="input-wrapper">
+                        <label for="e-a-e-date">Event Date:</label>
+                    <input class="input-field" type="date" name="edit_date" id="e-a-e-date" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="a-e-time">Event Time:</label>
+                    <input class="input-field" type="time" name="edit_time" id="e-a-e-time" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="a-e-location">Location:</label>
+                    <input class="input-field" type="text" name="edit_location" id="e-a-e-location" placeholder="e.g Uskudar Univer..." value="${activityLocationData.textContent}" required>
+                    </div>
+                    <div class="input-wrapper mt-lg-4">
+                        <label for="a-p-number">Phone Number:</label>
+                    <input class="input-field event-phone-input" type="text" name="edit_phonenumber" id="e-a-p-number" placeholder="e.g +90 (512) 345 678 9" value="${activityPhoneData.textContent}" required>
+                    <strong class="phone-error">Invalid Number</strong>
+                    </div>
+                </div>
+                <h6>Event Description:</h6>
+                <div class="description-container">
+                    <textarea class="input-field event-description-input" name="edit_description" id="e-a-e-description" placeholder="e.g The goal of this event..." required>${activityDescData.textContent}</textarea>
+                    <strong class="description-error">The Description should be between 300-4000 letter</strong>
+                </div>
+                <button onclick="checkEventFormAndConfirm()" type="button" class="send-request-btn align-self-center">Submit Request</button>
+                
             </div>
-         
+        </form>
     </div>
     
     <div class="event-activity-details-container">
-
+        {% if event_activity %}
         <img src="{{ event_activity.event_image.url }}" alt="{{ event_activity.eventtitle }}">
         <div class="event-activity-infos">
             <h3 class="event-activity-title" id="activity-title-data">{{ event_activity.eventtitle }}</h3>
@@ -85,13 +159,44 @@
                 <p><i class="fa-solid fa-cube"></i> Club Name: <span id="activity-clubname-data">{{ event_activity.clubname }}</span> </p>
                 <p><i class="fa-regular fa-envelope"></i> Email: <span id="activity-email-data">{{ event_activity.email }}</span> </p>
                 <p><i class="fa-solid fa-phone"></i> Phone Number: <span id="activity-phone-data">{{ event_activity.phonenumber }}</span> </p>
-
+                 
             </div>
 
             <button onclick="showEditActivityForm()" type="button" class="edit-event-btn">Edit</button>
             <button type="button" class="delete-event-btn">Delete</button>
         </div>
+        {% endif %}
+        {% if edit_event_activity %}
+            {{ edit_event_activity }}
+        {% else %}
+            <p>No edit activity found</p>
+        {% endif %}
+        {% if edit_event_activity %}
+        <img src="{{ edit_event_activity.event_image.url }}" alt="{{ edit_event_activity.eventtitle }}">
+        <div class="event-activity-infos">
+        <h3 class="event-activity-title" id="activity-title-data">{{ edit_event_activity.eventtitle }}</h3>
+        <p class="event-activity-description" id="activity-desc-data">
+            {{ edit_event_activity.description }}
+        </p>
+        <div class="event-activity-details">
+            <p><i class="fa-regular fa-calendar"></i> Date: <span id="activity-date-data">{{ edit_event_activity.date }}</span></p>
+            <p><i class="fa-regular fa-clock"></i> Time: <span id="activity-time-data">{{ edit_event_activity.time|time:"h:i A" }}</span></p>
+            <p><i class="fa-solid fa-location-dot"></i> Location: <span id="activity-location-data">{{ edit_event_activity.location }}</span></p>
+            <p><i class="fa-solid fa-list"></i> Category: <span id="activity-category-data">{{ edit_event_activity.categories }}</span></p>
+            <p><i class="fa-regular fa-user"></i> Manager: <span id="activity-manager-data">{{  edit_event_activity.clubmanager }}</span> </p>
+            <p><i class="fa-regular fa-user"></i> Vice Manager: <span id="activity-vice-data">{{  edit_event_activity.clubvicemanager }}</span> </p>
+            <p><i class="fa-solid fa-cube"></i> Club Name: <span id="activity-clubname-data">{{  edit_event_activity.clubname }}</span> </p>
+            <p><i class="fa-regular fa-envelope"></i> Email: <span id="activity-email-data">{{  edit_event_activity.email }}</span> </p>
+            <p><i class="fa-solid fa-phone"></i> Phone Number: <span id="activity-phone-data">{{  edit_event_activity.phonenumber }}</span> </p>
+
+        </div>
+        <button onclick="showEditActivityForm()" type="button" class="edit-event-btn">Edit</button>
+        <button type="button" class="delete-event-btn">Delete</button>
+        </div>
+     {% endif %}
+    
     </div>
+    
     <div class="more-event-activities">
         <h3>More Event Activities</h3>
     </div>
@@ -125,6 +230,29 @@
           </div>
           {% endif %} 
         {% endfor %} 
+        {% for edit_event in edit_activity reversed %}
+        {% if  edit_event.approved %}
+        <div class="card p-0 col-md-4 col-lg-3 event-card card-to-filter text-center" data-category="{{ edit_event.categories }}">
+                    <div class="image-wrapper">
+                        <a href="{% url 'eventPage' pk=edit_event.id %}">
+                            <img src="{{ edit_event.event_image.url }}" class="card-img-top event-img" alt="{{ edit_event.eventtitle }}">
+                            <div class="event-date date-to-style" data-date="{{ edit_event.date }}">
+                                <span><span class="event-day">{{ edit_event.date.day }}</span><span class="event-month">{{ edit_event.date|date:"M" }}</span></span>
+                                <hr>
+                                <span class="event-time">{{ edit_event.time|time:"h:i A" }}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mt-5">{{ edit_event.eventtitle }}</h5>
+                        <p class="card-text text-black-50">{{ edit_event.description|truncatewords:20 }}</p>
+                        <div class="info-list">
+                            <a href="{% url 'eventPage' pk=edit_event.id %}"><button type="button" class="main-btn more-info-btn">More Info</button></a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
         </div>
       </div>
