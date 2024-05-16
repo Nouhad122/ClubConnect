@@ -21,42 +21,84 @@
         <h1>Notifications</h1>
     </div>
     <div class="manager-notif-container">
+
         {% for act in activities %}
-        {% if act.approved %}
-       <div class="notification notification-accepted">
-        <i class="fa-solid fa-check"></i>
-        Your Event Activity ( {{act.eventtitle}} ) Request Is Accepted By The SKS Admin
-       </div>
-       {% endif %}   
-       {% endfor %}
-       {% for post in posts %}
-       {% if post.approved %}
-      <div class="notification notification-accepted">
-       <i class="fa-solid fa-check"></i>
-       Your Event Post ( {{post.eventtitle}} ) Request Is Accepted By The SKS Admin
-      </div>
-      {% endif %}   
-      {% endfor %}
-       <div class="notification notification-rejected">
-        <i class="fa-solid fa-xmark"></i>
-        Your Event Activity Request Is Rejected By The SKS Admin
-        <button class="why-rejected">See Why</button>
-        <p class ="purpose-of-rejection">
-            The decision to reject an event hinges on several critical factors. Primarily, it must align with organizational values and goals.
-             If the event contradicts these principles or poses a threat to safety, it warrants rejection. Additionally, if the content lacks
-              relevance or fails to offer meaningful benefits to attendees, rejection becomes necessary to uphold standards of quality and purpose.chjbfdjhbshjvjhbcjhebcjheb ejhbcehjbcejhbchjebc dfhjbcjhbchjsbchjdsbc scdhjbcsdhjbcjhsbcjhdsbchjsbdchjsbdchjbdshcjbsdhjcb csjhbcsjhbchjfsbchjsbcjhsbchjsbcjhsbcjhsbc csjhbcsjhbcjhsdbcjhsbchjdsbcjhdsbcjhsdbcjhs cshjbcjhsfbcjhsfbcjhsbcjhbshjcbshjcb sdjhcbshjbcshjbcsjhbchsjbcjhsbchjsb csjhbchjsbchjsbcjhsbcjhsdbcjhdsbc cdhjsbcsjbcjsbcjsbhjcbsdbc cdsjhbcdsjhbchsjbcjhsbchjsbcjhsdb dchjsdbcjhbdschjdbscjhbshjcbshbc csjhdbcsjhdbchjsbchjsbcjhsbcjhbds cjhdsbchjsbcjnckjfsnjfnjvbdf vfdjhbvjhdfbvhjdfbvhdbhvbdfjhvbdv djhfbvfjhdbvhjdbvjhdbvhjdbhvdbv dfjhvbdfjhvbdjhbvjhdbvhjdbvhjdbvjhdbvhjdbvhjdbhvjbdhvbdfhjv fdjhvbdfjhbjhdfbjhfdbjhbfhjvbfdhj vfdjhbvhjfdbvjd vhfdjbvhfdjbvd vjhfdbvhjdfbvjhdv fdvbfdjhbvjhdbvd vjhdbvhjdbvjhfdbv dfjhvbdjhbvdjhbv vdjhbvhjdbvhjfdbv fdjhvbdjhvbdjhfbv vjhdbvjhdfbvhjdfbvhjdbfvhjfdbvhjbdhjvbdh vdjhbvhdjbvhjdbvjhdbvhjdbvhjbdhvbdfhvbdhjb
-            </p>
-       </div>
-       <div class="notification notification-rejected">
-        <i class="fa-solid fa-xmark"></i>
-        Your Event Activity Request Is Rejected By The SKS Admin
-        <button class="why-rejected">See Why</button>
-        <p class ="purpose-of-rejection">
-            The Location You chose isn't available on Monday 24 Apr
-            </p>
-       </div>
-       
+            {% if act.approved %}
+                <div class="notification notification-accepted">
+                    <i class="fa-solid fa-check"></i>
+                    Your Event Activity ({{ act.eventtitle }}) Request Is Accepted By The SKS Admin
+                </div>
+            {% endif %}
+            {% if act.rejected %}
+                <div class="notification notification-rejected">
+                    <i class="fa-solid fa-xmark"></i>
+                    Your Event Activity ({{ act.eventtitle }}) Request Is Rejected By The SKS Admin
+                    <button class="why-rejected">See Why</button>
+                    <p class="purpose-of-rejection">
+                        {% if act.rejection_reason.all %}
+                        <p>Rejection Reason: {{ act.rejection_reason.first.reason }}</p>
+                    {% endif %}
+
+                    </p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    
+        {% for act in editedactivities %}
+            {% if act.approved %}
+                <div class="notification notification-accepted">
+                    <i class="fa-solid fa-check"></i>
+                    Your Event Activity ({{ act.eventtitle }}) Edit Request Is Accepted By The SKS Admin
+                </div>
+            {% endif %}
+            {% if act.rejected %}
+                <div class="notification notification-rejected">
+                    <i class="fa-solid fa-xmark"></i>
+                    Your Event Activity ({{ act.eventtitle }}) Edit Request Is Rejected By The SKS Admin
+                    <button class="why-rejected">See Why</button>
+                    <p class="purpose-of-rejection">
+                        {% if act.rejection_reason.all %}
+                        <p>Rejection Reason: {{ act.rejection_reason.first.reason }}</p>
+                    {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    
+
+        {% for post in posts %}
+            {% if post.approved %}
+                <div class="notification notification-accepted">
+                    <i class="fa-solid fa-check"></i>
+                    Your Event Post ({{ post.eventtitle }}) Request Is Accepted By The SKS Admin
+                </div>
+            {% endif %}   
+    
+            {% if post.rejected %}
+                <div class="notification notification-rejected">
+                    <i class="fa-solid fa-xmark"></i>
+                    Your Event Post ({{ post.eventtitle }}) Request Is Rejected By The SKS Admin
+                    <button class="why-rejected">See Why</button>
+                    <p class="purpose-of-rejection">
+                        {% if post.rejection_reason.all %}
+                            <p>Rejection Reason: {{ post.rejection_reason.first.reason }}</p>
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% for club in clubs %}
+        
+        {% if request.user.username == club.clubmanager.username %}
+        <div class="notification notification-accepted">
+            <i class="fa-solid fa-check"></i>
+            Your Club ({{ club.clubname }}) Has been created By The SKS Admin
+        </div>
+        {% endif %}
+    {% endfor %}
     </div>
+    
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/all.min.js' %}"></script>

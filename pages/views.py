@@ -1,11 +1,16 @@
+import logging
+from venv import logger
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.models import User, auth, Group
 from django.contrib.auth import logout,login,authenticate
 from django.contrib import messages
-from .models import createclub,Post,EventActivity,Rejections
+from .models import createclub,Post,EventActivity,Rejections,EditEventActivity,EditPost
 from django.contrib.auth.decorators import login_required
 from pages.authentication_backends import EmailAuthBackend
 from .decorators import unauthenticated_user ,allowed_users
+from datetime import datetime, timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 # registration:
 
@@ -132,7 +137,7 @@ def studentLogin(request):
         return render(request, 'pages/registration-form/student-login.html')
 
 
-
+@login_required(login_url='usertype')   
 def LogoutUser(request):
     if request.user.is_authenticated:
         logout(request)
@@ -142,39 +147,174 @@ def LogoutUser(request):
 #@allowed_users(allowed_roles=['student','admin','manager'])
 #@login_required(login_url='usertype') 
 #@admin_only
+@login_required(login_url='usertype')   
 def homePage(request):
     home = createclub.objects.all()
-    event = EventActivity.objects.all()
-    return render(request, 'pages/all-users-interface/homepage.html',{'home':home ,'event':event})
+    today = datetime.now().date()
+    one_week_from_today = today + timedelta(days=7)
+
+    event = EventActivity.objects.filter(date__range=[today, one_week_from_today])
+    edit_activity = EditEventActivity.objects.filter(date__range=[today, one_week_from_today])
+    return render(request, 'pages/all-users-interface/homepage.html',{'home':home ,'event':event,'edit_activity':edit_activity})
 
 @login_required(login_url='usertype')
 def events(request):
-    activity= EventActivity.objects.all()
-    return render(request, 'pages/all-users-interface/events.html', {'activity': activity})
+    activity= EventActivity.objects.filter(approved=True)
+    edit_activity = EditEventActivity.objects.filter(approved=True)
+
+    return render(request, 'pages/all-users-interface/events.html', {'activity': activity, 'edit_activity': edit_activity})
 
 
-
+@login_required(login_url='usertype')   
 def clubs(request):
     clubs = createclub.objects.all()
     return render(request, 'pages/all-users-interface/clubs.html',{'clubs': clubs})
 
 
-
+@login_required(login_url='usertype')   
 def myList(request):
     return render(request, 'pages/all-users-interface/my-list.html')
 
+@login_required(login_url='usertype')   
 def clubProfile(request,pk):
     club = get_object_or_404(createclub, pk = pk)
     activity= EventActivity.objects.filter(clubname=club)
+    edit_activity= EditEventActivity.objects.filter(clubname=club)
+    edit_post= EditPost.objects.filter(clubname=club)
     post=Post.objects.filter(clubname=club)
+    
+    if request.method == 'POST':   
+            clubname = request.POST.get('clubname')
+            clubmanager = request.POST.get('clubmanager')
+            postdescription = request.POST['postdescription']
+            eventtitle = request.POST['eventtitle']
+            image = request.FILES['post_image']
 
-    return render(request, 'pages/all-users-interface/club-profile.html', {'activity': activity , 'post':post , 'club':club})
+            manager, created = User.objects.get_or_create(username=clubmanager)
+
+            if not created:
+                # If the user already exists, check if they are the manager of the club
+                if club.clubmanager != manager:
+                    return HttpResponseForbidden("You are not authorized to perform this action.")
+
+            club_instance, created = createclub.objects.get_or_create(
+                clubname=clubname,
+                clubmanager=manager
+            )
+
+            new_post_edit = EditPost.objects.create(
+                clubname=club_instance,
+                clubmanager=manager,
+                image=image,
+                postdescription=postdescription,
+                eventtitle=eventtitle
+                )
+            new_post_edit.save()
+
+            # Update the related Post objects with the new EditPost
+            for p in post:
+                p.edit_post = new_post_edit
+                p.save()
+                return redirect('clubProfile', pk=pk)
+    else:
+         return render(request, 'pages/all-users-interface/club-profile.html', {'activity': activity , 'post':post , 'club':club,'edit_activity':edit_activity, 'edit_post':edit_post})
+
+@login_required(login_url='usertype')   
+def delete_club(request,pk):
+    club = createclub.objects.get(pk=pk)
+    club.delete()
+    return redirect('clubs')
+
+@login_required(login_url='usertype')   
+def delete_event(request,pk):
+    event_activity = EventActivity.objects.get(pk=pk)
+    event_activity.delete()
+    return redirect('events')
 
 
+@login_required(login_url='usertype')   
 def eventPage(request,pk):
     activity= EventActivity.objects.all()
-    event_activity= get_object_or_404(EventActivity, pk=pk)
-    return render(request, 'pages/all-users-interface/event-page.html',{'event_activity': event_activity, 'activity': activity})
+    edit_activity = EditEventActivity.objects.all()
+
+    try:
+        # Try to retrieve an EventActivity with the provided pk
+        event_activity = EventActivity.objects.get(pk=pk)
+        edit_event_activity = None  # Set edit_event_activity to None as it's not an EditEventActivity
+    except EventActivity.DoesNotExist:
+        try:
+            # If an EventActivity is not found, try to retrieve an EditEventActivity
+            edit_event_activity = EditEventActivity.objects.get(pk=pk)
+            event_activity = None  # Get the associated EventActivity
+        except EditEventActivity.DoesNotExist:
+            # If neither EventActivity nor EditEventActivity is found, raise a 404 error
+            raise Http404("No EventActivity or EditEventActivity matches the given query.")
+
+    if request.method == 'POST':
+        # Retrieve form data
+        clubmanager = request.POST.get('edit_clubmanager')
+        clubvicemanager = request.POST['edit_clubvicemanager']
+        clubname = request.POST.get('edit_clubname')
+        email = request.POST['edit_email']
+        eventtitle = request.POST['edit_eventtitle']
+        categories = request.POST['edit_categories']
+        date = request.POST['edit_date']
+        time = request.POST['edit_time']
+        location = request.POST['edit_location']
+        phonenumber = request.POST['edit_phonenumber']
+        description = request.POST['edit_description']
+        event_image = None  
+
+        if 'edit_event_image' in request.FILES:  
+            event_image = request.FILES['edit_event_image']
+        
+        manager = get_or_create_user_by_username(clubmanager)
+        club_instance, created = createclub.objects.get_or_create(clubname=clubname)
+        
+
+            #Create or update EditEventActivity object
+        if edit_event_activity:
+            # Update existing EditEventActivity
+            edit_event_activity.clubmanager = manager
+            edit_event_activity.clubvicemanager = clubvicemanager
+            edit_event_activity.clubname = club_instance
+            edit_event_activity.email = email
+            edit_event_activity.eventtitle = eventtitle
+            edit_event_activity.categories = categories
+            if event_image:
+                edit_event_activity.event_image = event_image
+            edit_event_activity.date = date
+            edit_event_activity.time = time
+            edit_event_activity.location = location
+            edit_event_activity.phonenumber = phonenumber
+            edit_event_activity.description = description
+            edit_event_activity.save()
+        else:
+            # Create new EditEventActivity
+            edit_event_activity = EditEventActivity.objects.create(
+                clubmanager=manager,
+                clubvicemanager=clubvicemanager,
+                clubname=club_instance,
+                email=email,
+                eventtitle=eventtitle,
+                categories=categories,
+                event_image=event_image,
+                date=date,
+                time=time,
+                location=location,
+                phonenumber=phonenumber,
+                description=description
+            )
+
+        # Save the object to the database
+        edit_event_activity.save()
+        event_activity.edit_event = edit_event_activity
+        event_activity.save()
+
+        # Redirect to a success page or homepage
+        return redirect('events')
+
+    return render(request, 'pages/all-users-interface/event-page.html',{'event_activity': event_activity, 'activity': activity,'edit_event_activity': edit_event_activity,'edit_activity':edit_activity  })
 
 # admin Interface:
 @login_required(login_url='usertype') 
@@ -195,8 +335,6 @@ def get_or_create_user_by_username(username):
 @allowed_users(allowed_roles=['admin'])  
 def createNewClub(request):
         if request.method == 'POST':
-                # Assuming you have a form that submits club data
-                # Extract club data from the form
                 clubname = request.POST['clubname']
                 headline = request.POST['headline']
                 location = request.POST['location']
@@ -208,24 +346,22 @@ def createNewClub(request):
                 category = request.POST['category']
                 clubvision = request.POST['clubvision']
                 clubdescription = request.POST['clubdescription']
+                number_of_members=request.POST['numOfMembers']
+                club_achievement1 = request.POST['clubAchievment1']
+                club_achievement2 = request.POST['clubAchievment2']
+                club_achievement3 = request.POST['clubAchievment3']
+                club_achievement4 = request.POST['clubAchievment4']
+                club_achievement5 = request.POST['clubAchievment5']
+                
                 profileimg = None
-                profileimg2 = None
+                bgimg = None
 
                 if 'profile_club' in request.FILES:  # Check if profile image file is uploaded
                     profileimg = request.FILES['profile_club']
                 if 'background_club' in request.FILES:  # Check if background image file is uploaded
-                    profileimg2 = request.FILES['background_club']
-
-
-               # try:
-              #      manager = User.objects.get(username=clubmanager)
-              #  except User.DoesNotExist:
-                        # Handle the case where the user does not exist
-                        # You might want to redirect the user to an error page or display a message
-               #     return HttpResponse("Error: The specified club manager does not exist.")
+                   bgimg = request.FILES['background_club']
 
                 manager = get_or_create_user_by_username(clubmanager)
-                vice_manager = get_or_create_user_by_username(clubvicemanager)
 
                         # Validate form data
                 if not clubname or not headline or not clubmanager or not email:
@@ -247,17 +383,18 @@ def createNewClub(request):
                     clubvision=clubvision,
                     clubdescription=clubdescription,
                     profileimg=profileimg,
-                    profileimg2=profileimg2
+                    bgimg=bgimg,
+                    number_of_members=number_of_members,
+                    club_achievement1=club_achievement1,
+                    club_achievement2=club_achievement2,
+                    club_achievement3=club_achievement3,
+                    club_achievement4=club_achievement4,
+                    club_achievement5=club_achievement5,
                 )
                 new_club.user = request.user
                 # Save the profile
                 new_club.save()
-                
-                # Optionally, you might want to associate the profile with the current user
-                # new_club.user = request.user
-                # new_profile.save()
 
-                # Redirect to a success page or homepage
                 return redirect('createNewClub')
         else:
                 return render(request, 'pages/sks-admin-interface/create-club-form.html')
@@ -266,61 +403,119 @@ def createNewClub(request):
 @allowed_users(allowed_roles=['admin'])
 def adminNotifications(request):
     posts = Post.objects.all().order_by('-pk')
-
+    events = EventActivity.objects.select_related('edit_event').all()
+    post = Post.objects.select_related('edit_post').all()
     activities = EventActivity.objects.all().order_by('-pk')
 
-    if request.method == 'POST':
-      if 'update_activities' in request.POST:
-        id_list=request.POST.getlist('boxes')
-        
-        activities.update(approved=False)
-
-        for activity_id in id_list:
-                activity = get_object_or_404(EventActivity, id=activity_id)
-                activity.approved = True
-                activity.save()   
-        messages.success(request,("Event Activity Requests has been updated"))
-        return redirect('events')
-
-
-    if request.method == 'POST':
-      if 'update_posts' in request.POST:
-        id_list=request.POST.getlist('boxes')
-        
-        posts.update(approved=False)
-
-        for post_id in id_list:
-                posts = get_object_or_404(Post, id=post_id)
-                posts.approved = True
-                posts.save()     
-        messages.success(request,("Event Activity Requests has been updated"))
-        return redirect('clubs')
-      
-    if request.method == 'POST':
-        reason = request.POST.get('reason')  # Get the rejection reason from the form
-        selected_activities = request.POST.getlist('boxes')  # Get the IDs of selected activities
-        for activity_id in selected_activities:
-            try:
-                activity = EventActivity.objects.get(id=activity_id)
-                rejection = Rejections(reason=reason)
-                rejection.save()  # Save the rejection reason
-                # Optionally, you can link the rejection reason to the activity
-                # activity.rejection = rejection
-                # activity.save()
-            except EventActivity.DoesNotExist:
-                # Handle the case if the activity does not exist
-                pass
-            return redirect('adminNotifications')
-        
     context = {
-        'posts': posts,
+        'posts': posts,        
+        'post': post,
         'activities': activities,
-    }  
-    return render(request, 'pages/sks-admin-interface/admin-notifications.html',context)
+        'events': events
+    }
+
+    return render(request, 'pages/sks-admin-interface/admin-notifications.html', context)
+
+def approve_or_reject_post(request):
+    if request.method == 'POST':
+        for post_id in request.POST.getlist('approve'):
+            post = get_object_or_404(Post, pk=post_id)
+            post.approved = True
+            post.rejected = False
+            post.save()
+
+        for post_id in request.POST.getlist('reject'):
+            post = get_object_or_404(Post, pk=post_id)
+            post.rejected = True
+            post.approved = False
+
+            reason = request.POST.get(f'reason_{post_id}')
+            rejection = Rejections(reason=reason, post=post)
+            rejection.save()
+
+            post.save()
+
+    return redirect('adminNotifications')
+
+def approve_or_reject_event(request):
+    if request.method == 'POST':
+
+            for event_id in request.POST.getlist('approve'):
+                event = get_object_or_404(EventActivity, pk=event_id)
+                event.approved = True
+                event.rejected = False
+                event.save()
+
+            for event_id in request.POST.getlist('reject'):
+                event = get_object_or_404(EventActivity, pk=event_id)
+                event.rejected = True
+                event.approved = False
+
+                reason = request.POST.get(f'reason_{event_id}')
+                rejection = Rejections(reason=reason, event_activity=event)
+                rejection.save()
+
+                event.save()
+
+    return redirect('adminNotifications')
+
+def approve_or_reject_edited_post(request):
+    events = EventActivity.objects.select_related('edit_event').all()
+    post = Post.objects.select_related('edit_post').all()
+
+    if request.method == 'POST':
+            for pst in post:
+                if pst.edit_post and str(pst.edit_post.id) in request.POST.getlist('approve'):
+                        pst.edit_post.approved = True
+                        pst.edit_post.rejected = False
+                        pst.edit_post.save()
+                        pst.approved = False
+                        pst.rejected= True
+                        pst.save()    
+            for pst in post:
+                if pst.edit_post and str(pst.edit_post.id) in request.POST.getlist('reject'):
+                        pst.edit_post.rejected = True
+                        pst.edit_post.approved = False
+                        pst.edit_post.save()
+                        pst.rejected = False
+                        pst.approved = True
+                        pst.save()
+                        reason = request.POST.get(f'reason_{pst.edit_post.id}')
+                        if reason:
+                             rejection = Rejections(reason=reason, edit_post=pst.edit_post)
+                             rejection.save()
+
+            
+
+            for event in events:
+                if event.edit_event and str(event.edit_event.id) in request.POST.getlist('approve'):
+                        event.edit_event.approved = True
+                        event.edit_event.rejected = False
+                        event.edit_event.save()
+                        event.approved = False
+                        event.rejected = True
+                        event.save()
+            for event in events:
+                if event.edit_event and str(event.edit_event.id) in request.POST.getlist('reject'):                        
+                        event.edit_event.rejected = True
+                        event.edit_event.approved = False
+                        event.edit_event.save()
+                        event.rejected = False
+                        event.approved = True
+                        event.save()
+                        reason = request.POST.get(f'reason_{event.edit_event.id}')
+                        if reason:
+                            rejection = Rejections(reason=reason, edit_event=event.edit_event)
+                            rejection.save()
+               
+            
+
+    return redirect('adminNotifications')
 
 # manager Interface:
 
-#@allowed_users(allowed_roles=['manager'])
+@login_required(login_url='usertype')   
+@allowed_users(allowed_roles=['manager'])
 def eventActivityForm(request): 
     if request.method == 'POST':
         # Retrieve form data
@@ -340,33 +535,37 @@ def eventActivityForm(request):
         if 'event_image' in request.FILES:  # Check if event_image file is uploaded
             event_image = request.FILES['event_image']
         
-        manager = get_or_create_user_by_username(clubmanager)
-        club_instance, created = createclub.objects.get_or_create(clubname=clubname)
-        # Create EventActivity object
-        event_activity = EventActivity(
-            clubmanager=manager,
-            clubvicemanager=clubvicemanager,
-            clubname=club_instance,
-            email=email,
-            eventtitle=eventtitle,
-            categories=categories,
-            event_image=event_image,
-            date=date,
-            time=time,
-            location=location,
-            phonenumber=phonenumber,
-            description=description
-        )
+        manager = request.user
 
-        # Save the object to the database
-        event_activity.save()
+        if manager.username == clubmanager:
+            try:
+                club_instance = createclub.objects.get(clubname=clubname, clubmanager=manager)
+            except createclub.DoesNotExist:
+                return HttpResponseForbidden("The club does not exist or is not associated with the logged-in manager.")
+                
+            event_activity = EventActivity(
+                clubmanager=manager,
+                clubvicemanager=clubvicemanager,
+                clubname=club_instance,
+                email=email,
+                eventtitle=eventtitle,
+                categories=categories,
+                event_image=event_image,
+                date=date,
+                time=time,
+                location=location,
+                phonenumber=phonenumber,
+                description=description
+            )
+            event_activity.save()
+            return redirect('eventActivityForm')
+        else:
+            return HttpResponseForbidden("You are not authorized to perform this action.")
+    else:
+        return render(request, 'pages/club-manager-interface/event-activity.html')
 
-        # Redirect to a success page or homepage
-        return redirect('eventActivityForm')
-
-    return render(request, 'pages/club-manager-interface/event-activity.html')
-
-#@allowed_users(allowed_roles=['manager'])
+@login_required(login_url='usertype')   
+@allowed_users(allowed_roles=['manager'])
 def eventPostForm(request):
      if request.method == 'POST':   
             clubname = request.POST.get('clubname')
@@ -375,30 +574,46 @@ def eventPostForm(request):
             eventtitle = request.POST['eventtitle']
             image = request.FILES['post_image']
 
-            manager = get_or_create_user_by_username(clubmanager)
-            club_instance, created = createclub.objects.get_or_create(clubname=clubname)
-            
-            new_post = Post.objects.create(
-            clubname=club_instance,
-            clubmanager=manager,
-            image=image,
-            postdescription=postdescription,
-            eventtitle=eventtitle
-             )
-            new_post.save()
-            return redirect('eventPostForm')
+            manager = request.user
+
+            if manager.username == clubmanager:
+                try:
+                    club_instance = createclub.objects.get(clubname=clubname, clubmanager=manager)
+                except createclub.DoesNotExist:
+                    return HttpResponseForbidden("The club does not exist or is not associated with the logged-in manager.")
+                
+                new_post = Post.objects.create(
+                clubname=club_instance,
+                clubmanager=manager,
+                image=image,
+                postdescription=postdescription,
+                eventtitle=eventtitle
+                )
+                new_post.save()
+                return redirect('eventPostForm')
+            else:
+                return HttpResponseForbidden("You are not authorized to perform this action.")
      else:
             return render(request, 'pages/club-manager-interface/event-post.html')
 
- 
-#@allowed_users(allowed_roles=['manager'])
+@login_required(login_url='usertype')    
+@allowed_users(allowed_roles=['manager'])
 def managerNotifications(request):
-    posts = Post.objects.all().order_by('-pk')
-
-    activities = EventActivity.objects.all().order_by('-pk')
+    club = get_object_or_404(createclub, clubmanager=request.user)    
+    activities= EventActivity.objects.filter(clubname=club).order_by('-pk')
+    posts=Post.objects.filter(clubname=club).order_by('-pk')
+    editedactivities = EditEventActivity.objects.all().order_by('-pk')
+    rejected_activities_with_reason = EventActivity.objects.filter(rejected=True).prefetch_related('rejection_reason')
+    edited_rejected_activities_with_reason = EditEventActivity.objects.filter(rejected=True).prefetch_related('rejection_reason')
+    rejected_posts_with_reason = Post.objects.filter(rejected=True).prefetch_related('rejection_reason')
 
     context = {
         'posts': posts,
-        'activities': activities,
+        'club': club,
+        'activities': activities,        
+        'editedactivities': editedactivities,
+        'rejected_activities_with_reason': rejected_activities_with_reason,
+        'rejected_posts_with_reason': rejected_posts_with_reason,
+        'edited_rejected_activities_with_reason': edited_rejected_activities_with_reason,
     }  
     return render(request, 'pages/club-manager-interface/manager-notifications.html',context)

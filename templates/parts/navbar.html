@@ -1,3 +1,17 @@
+<style>
+  .logout-menu{
+    background-color: var(--dark-color);
+    position: absolute;
+    right: -25px;
+    bottom: -80px !important;
+    padding: 7px 0;
+    border-radius: 3px;
+  }
+  .logout-menu li:last-child{
+    margin-top: 12px !important;
+  }
+</style>
+
 <nav class="navbar navbar-expand-lg sticky-top">
   <div class="container-fluid">
       <div class="logo">
@@ -25,6 +39,7 @@
         <li class="nav-item ps-lg-1 pe-lg-1 ps-2 pe-2">
           <a id="my-list" class="nav-link to-activate" href="{% url 'myList' %}">My List</a>
         </li>
+        {% if request.user.is_authenticated and request.user.is_superuser and not request.user.is_staff %}
             <div class="dropdown">
                 <li class="nav-link create-button dropdown-toggle to-activate" type="button" id="create" data-bs-toggle="dropdown" aria-expanded="false">
                     Create
@@ -34,34 +49,38 @@
                     <li><a class="dropdown-item" href="{% url 'eventPostForm' %}">Event Post</a></li>
                 </ul>
             </div>
-
+        {% endif %}
 
 
        {% if request.user.is_authenticated and request.user.is_staff %}
-            <ul class="reg-buttons flex-column align-items-center gap-4 gap-lg-2 flex-lg-row">
-                <li><a href="{% url 'createNewClub' %}"><button type="button" class="logout-btn btn">Create New Club</button></a></li>
-                <li><a href="{% url 'adminNotifications' %}" id="admin-notifications">
+            <div class="reg-buttons flex-column align-items-center gap-4 gap-lg-2 flex-lg-row">
+                <a href="{% url 'createNewClub' %}"><button type="button" class="logout-btn btn">Create New Club</button></a>
+                <a href="{% url 'adminNotifications' %}" id="admin-notifications">
                     <div class="notifications-container me-2">
                         <i class="fa-solid fa-bell"></i>
                         <div class="notif-div"></div>
                     </div>
-                </a></li>
-            </ul>
+                </a>
+            </div>
        {% endif %}
-       
+       {% if request.user.is_authenticated and request.user.is_superuser and not request.user.is_staff %}
        <div class="reg-buttons flex-column align-items-center gap-4 gap-lg-2 flex-lg-row">
         <a href="{% url 'managerNotifications' %}" id="manager-notifications">
           <div class="notifications-container me-2">
           <i class="fa-solid fa-bell"></i>
           <div class="notif-div"></div>
       </div>
-
+      {% endif %}
       </a>
         <div class="profile-container d-lg-flex align-items-lg-center gap-1">
-        <div class="profile-letter">N</div>
+        <div class="profile-letter">C</div>
         <i class="fa-solid fa-caret-down"></i>
         </div>
        <ul class="logout-menu hidden-logout">
+        {% if request.user.is_authenticated and request.user.is_superuser and not request.user.is_staff %}
+        <li><a href="#">My Club</a></li>
+        {% endif %}
+
         <li><a href="{% url 'logout' %}">Logout</a></li>
        </ul>
       </div>

@@ -1,7 +1,3 @@
-const backgroundUpload = document.querySelector('.background-upload');
-const profileUpload = document.querySelector('.profile-upload');
-const backgroundPreview = document.querySelector('.bg-preview');
-const profilePreview = document.querySelector('.profile-preview');
 let backgroundContainer = document.querySelector('.image-upload-container');
 let profileContainer = document.querySelector('.profile-input');
 let phoneNum1 = document.querySelector('.phone1');
@@ -12,115 +8,11 @@ let clubConfirmMessage = document.querySelector('.confirm-message');
 let clubBlur = document.querySelector('.blur');
 let clubEmail = document.querySelector('.club-email');
 let createClubForm = document.querySelector('.create-club-form');
-let editClubForm = document.querySelector('.edit-club-form');
-
-
-let editClub = document.querySelector('.edit-clubProfile-form');
-let closeEditBtn = document.getElementById('x-mark');
-let editClubBlur = document.getElementById('edit-club-blur');
-let clubNameData = document.getElementById('club-name-data');
-let headLineData = document.getElementById('headline-data');
-let locationData = document.getElementById('location-data');
-let clubManageData = document.getElementById('club-manager-data');
-let viceManagerData = document.getElementById('vice-manager-data');
-let phone1Data = document.getElementById('phone1-data');
-let phone2Data = document.getElementById('phone2-data');
-let clubEmailData = document.getElementById('club-email-data');
-let clubCategoryData = document.getElementById('club-category-data');
-let numOfMembersData = document.getElementById('num-of-members-data');
-let clubAchievment1Data = document.getElementById('club-achievment1-data');
-let clubAchievment2Data = document.getElementById('club-achievment2-data');
-let clubAchievment3Data = document.getElementById('club-achievment3-data');
-let clubAchievment4Data = document.getElementById('club-achievment4-data');
-let clubAchievment5Data = document.getElementById('club-achievment5-data');
-let clubVisionData = document.getElementById('club-vision-data');
-let clubDescriptionData = document.getElementById('club-description-data');
-
-        function showEditClubFormData(){
-            let editClubFormInterface = 
-        `
-        <i onclick="hideEditClubForm()" class="fa-solid fa-xmark" id="x-mark"></i>
-        <form class="edit-club-form" action="" method="POST">
-            {% csrf_token%}
-            <div class="image-upload-container">
-                <div onclick="backgroundUpload.click()" class="image-preview bg-preview" id="edit-background-preview"></div>
-                <label for="edit-background-upload" class="custom-background-upload">
-                    <i class="fas fa-cloud-upload-alt"></i> Choose A File
-                </label>
-                <input class="background-upload" id="edit-background-upload" type="file" name="edit_bg_club" required/>
-                <div class="profile-input">
-                    <div onclick="profileUpload.click()" class="image-preview profile-preview" id="edit-profile-preview"></div>
-                    <label for="edit-profile-upload" class="custom-profile-upload">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </label>
-                    <input class="profile-upload" id="edit-profile-upload" type="file" name="edit_profile_club" required/>
-                </div>
-            </div>
-
-        <div class="club-infos edit-club-infos">
-            <input class="input-field club-name" id="edit-club-name" name="edit_clubname" type="text" placeholder="Club Name" value="${clubNameData.textContent}" required>
-            <input class="input-field headline" id="edit-headline" name="edit_headline" type="text" placeholder="Headline" value="${headLineData.textContent}" required>
-            <input class="input-field club-location" id="edit-club-location" name="edit_location" type="text" placeholder="Location" value="${locationData.textContent}" required>
-            <input class="input-field club-manager" id="edit-club-manager" name="edit_clubmanager" type="text" placeholder="Club Manager" value="${clubManageData.textContent}" required>
-            <input class="input-field club-vice-manager" id="edit-club-vice-manager" name="edit_clubvicemanager" type="text" placeholder="Club Vice Manager" value="${viceManagerData.textContent}" required>
-            <div class="input-div">
-            <input class="input-field phone1" id="edit-phone1" name="edit_phonenumber1" type="tel" placeholder="Phone Number 1" value="${phone1Data.textContent}" required>
-            <strong class="phone-error1">Invalid Number</strong>
-            </div>
-            <div class="input-div">
-            <input class="input-field phone2" id="edit-phone2" name="edit_phonenumber2" type="tel" placeholder="Phone Number 2" value="${phone2Data.textContent}" required>
-            <strong class="phone-error2">Invalid Number</strong>
-            </div>
-            <div class="input-div">
-            <input class="input-field club-email" id="edit_club-email" name="edit_email" type="email" placeholder="Email Adress" value="${clubEmailData.textContent}" required>
-            <strong class="email-error">Invalid Email</strong>
-        </div>
-            <select name="edit_category" id="edit-s-categories">
-                <option value="${clubCategoryData.textContent}">${clubCategoryData.textContent}</option>
-                <option value="sport">Sport</option>
-                <option value="gaming">Gaming</option>
-                <option value="technology">Technology</option>
-                <option value="society">Society</option>
-                <option value="programming">Programming</option>
-                <option value="art">Art</option>
-            </select>
-            <input class="input-field" type="number" name="numOfMembers" placeholder="Number of Members" value="${parseInt(numOfMembersData.textContent)}" required>
-            <input type="text" class="club-achievment" name="edit_clubAchievment1" id= "edit_clubAchievment1" placeholder="Club's Achievment" value="${clubAchievment1Data.textContent}">
-            <input type="text" class="club-achievment" name="edit_clubAchievment2" id= "edit_clubAchievment2" placeholder="Club's Achievment" value="${clubAchievment2Data.textContent}">
-            <input type="text" class="club-achievment" name="edit_clubAchievment3" id= "edit_clubAchievment3" placeholder="Club's Achievment" value="${clubAchievment3Data.textContent}">
-            <input type="text" class="club-achievment" name="edit_clubAchievment4" id= "edit_clubAchievment3" placeholder="Club's Achievment" value="${clubAchievment4Data.textContent}">
-            <input type="text" class="club-achievment" name="edit_clubAchievment5" id= "edit_clubAchievment3" placeholder="Club's Achievment" value="${clubAchievment5Data.textContent}">
-            <div class="area-div">
-            <textarea class="input-field club-vision-input" name="edit_clubvision" id="edit-club-vision-input" placeholder="Club Vision" required>${clubVisionData.textContent}</textarea>
-            <strong class="vision-error">The club vision should be between 200-3000 letter</strong>
-            </div>
-            <div class="area-div">
-            <textarea class="input-field club-description-input" name="edit_clubdescription" id="edit-club-description-input" placeholder="Club Description" required>${clubDescriptionData.textContent}</textarea>
-            <strong class="description-error">The club description should be between 300-4000 letter</strong>
-            </div>
-            <div class="create-club-btn"><button onclick="checkAndConfirm()" type="button">Edit Club</button></div>
-        </div>
-    </form>
-        `;
-        editClub.innerHTML =  editClubFormInterface;
-        }
-        showEditClubFormData();
-
-      function showEditClubForm(){
-          editClub.style.display = "block";
-          editClubBlur.style.display = "block";
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-          });
-         
-      }
-      function hideEditClubForm(){
-        editClub.style.display = "none";
-        editClubBlur.style.display = "none";
-   
-    }
-
+    
+const backgroundUpload = document.querySelector('.background-upload');
+const profileUpload = document.querySelector('.profile-upload');
+const backgroundPreview = document.querySelector('.bg-preview');
+const profilePreview = document.querySelector('.profile-preview');
 function displayImagePreview(input, preview) {
   const file = input.files[0];
   if (file) {
@@ -136,6 +28,7 @@ function displayImagePreview(input, preview) {
       reader.readAsDataURL(file);
   }
 }
+
 if(document.body.id === 'create new club' || document.body.id === 'club-profile'){
 backgroundUpload.addEventListener('change', function() {
   displayImagePreview(this, backgroundPreview);
@@ -262,6 +155,34 @@ let postRequest = document.querySelectorAll('.post-request');
 let editRequest = document.querySelectorAll('.edit-request');
 let postInterface = document.getElementById('post-interface-container');
 let editedEventInterface = document.getElementById('edited-event-interface-container');
+let requestContainer = document.querySelectorAll('.notif-request');
+
+if(document.body.id = "admin-notifications"){
+
+function handleRequestContainer(){
+    for(let i = 0; i< requestContainer.length; i++){
+      const approveCheckbox = requestContainer[i].querySelector('.accept-check');
+      const rejectCheckbox = requestContainer[i].querySelector('.reject-check');
+
+      approveCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            rejectCheckbox.checked = false;
+            requestContainer[i].style.height = "70px";
+        }
+    });
+    
+    rejectCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            approveCheckbox.checked = false;
+            requestContainer[i].style.height = "170px";
+        }
+        else{
+            requestContainer[i].style.height = "70px";
+        }
+    });
+    }
+}
+handleRequestContainer();
 
 function showRequestContent(request,interfaceContainer){
   for(let i = 0; i < request.length; i++){
@@ -442,17 +363,4 @@ function closeEventInterface(interface){
   document.body.style.overflow = 'auto';
 }
 
-
-let rejectionContainer = document.querySelector('.admin-rejection-purpose');
-let rejectionBlur = document.getElementById('admin-notification-blur');
-function showRejectionPurpose(){
-  document.body.style.overflow = 'hidden';
-  rejectionContainer.style.display = 'block';
-  rejectionBlur.style.display = 'block';
-}
-
-function hideRejectionPurpose(){
-    document.body.style.overflow = 'auto';
-    rejectionContainer.style.display = 'none';
-    rejectionBlur.style.display = 'none';
 }
